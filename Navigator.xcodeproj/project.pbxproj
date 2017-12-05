@@ -13,6 +13,8 @@
 		A99D77B21FD6B5AB00E4B357 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A99D77B01FD6B5AB00E4B357 /* Main.storyboard */; };
 		A99D77B41FD6B5AB00E4B357 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A99D77B31FD6B5AB00E4B357 /* Assets.xcassets */; };
 		A99D77B71FD6B5AB00E4B357 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A99D77B51FD6B5AB00E4B357 /* LaunchScreen.storyboard */; };
+		A99D77BF1FD6B61800E4B357 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = A99D77BE1FD6B61800E4B357 /* README.md */; };
+		A99D77C51FD6D61D00E4B357 /* Navigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A99D77C41FD6D61D00E4B357 /* Navigator.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +26,8 @@
 		A99D77B31FD6B5AB00E4B357 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A99D77B61FD6B5AB00E4B357 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A99D77B81FD6B5AB00E4B357 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A99D77BE1FD6B61800E4B357 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		A99D77C41FD6D61D00E4B357 /* Navigator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Navigator.swift; path = Source/Navigator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -40,6 +44,8 @@
 		A99D779E1FD6B5AB00E4B357 = {
 			isa = PBXGroup;
 			children = (
+				A99D77C31FD6D54600E4B357 /* Source */,
+				A99D77C11FD6B63500E4B357 /* Metadata */,
 				A99D77A91FD6B5AB00E4B357 /* Navigator */,
 				A99D77A81FD6B5AB00E4B357 /* Products */,
 			);
@@ -65,6 +71,22 @@
 				A99D77B81FD6B5AB00E4B357 /* Info.plist */,
 			);
 			path = Navigator;
+			sourceTree = "<group>";
+		};
+		A99D77C11FD6B63500E4B357 /* Metadata */ = {
+			isa = PBXGroup;
+			children = (
+				A99D77BE1FD6B61800E4B357 /* README.md */,
+			);
+			name = Metadata;
+			sourceTree = "<group>";
+		};
+		A99D77C31FD6D54600E4B357 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				A99D77C41FD6D61D00E4B357 /* Navigator.swift */,
+			);
+			name = Source;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -99,7 +121,7 @@
 				TargetAttributes = {
 					A99D77A61FD6B5AB00E4B357 = {
 						CreatedOnToolsVersion = 9.1;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 					};
 				};
 			};
@@ -128,6 +150,7 @@
 			files = (
 				A99D77B71FD6B5AB00E4B357 /* LaunchScreen.storyboard in Resources */,
 				A99D77B41FD6B5AB00E4B357 /* Assets.xcassets in Resources */,
+				A99D77BF1FD6B61800E4B357 /* README.md in Resources */,
 				A99D77B21FD6B5AB00E4B357 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -140,6 +163,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A99D77AF1FD6B5AB00E4B357 /* SecondViewController.swift in Sources */,
+				A99D77C51FD6D61D00E4B357 /* Navigator.swift in Sources */,
 				A99D77AB1FD6B5AB00E4B357 /* AppDelegate.swift in Sources */,
 				A99D77AD1FD6B5AB00E4B357 /* FirstViewController.swift in Sources */,
 			);
@@ -278,11 +302,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = 5CZN7VG53B;
 				INFOPLIST_FILE = Navigator/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.MarcoMuratori.Navigator;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "4a8f18cb-2d3b-49a0-959b-0cc2eddac288";
+				PROVISIONING_PROFILE_SPECIFIER = "Development Wildcard";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -292,11 +320,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = Navigator/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.MarcoMuratori.Navigator;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
