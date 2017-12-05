@@ -43,14 +43,10 @@ Navigator.find(MyViewController.self, navigateTo: true) { (MyViewControllerInsta
 
 ## Installation
 
-> _Note:_ Navigator.swift requires Swift 4 (and [Xcode][] 9).
-
 Simply drag **Navigator.swift** inside your project and start using it.
 
 ## Communication
 
-- Need **help** or have a **general question**? [Ask on Stack
-Overflow][] (tag `Navigator`).
 - Found a **bug** or have a **feature request**? [Open an issue][].
 - Want to **contribute**? [Submit a pull request][].
 
