@@ -1,4 +1,5 @@
 # Navigator
+<<<<<<< HEAD
 
 [![Build Status][TravisBadge]][TravisLink] [![Swift4 compatible][Swift4Badge]][Swift4Link] [![Platform][PlatformBadge]][PlatformLink]
 
@@ -78,3 +79,6 @@ file](./LICENSE.txt) for more information.
 
 [Swift4Badge]: https://img.shields.io/badge/swift-4-orange.svg?style=flat
 [Swift4Link]: https://developer.apple.com/swift/
+=======
+Easily find and navigate to any ViewController inside your app, from anywhere.
+>>>>>>> 35d02f5a37bc997f7af39ad88afac5e188f439d5
