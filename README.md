@@ -1,5 +1,4 @@
 # Navigator
-<<<<<<< HEAD
 
 [![Build Status][TravisBadge]][TravisLink] [![Swift4 compatible][Swift4Badge]][Swift4Link] [![Platform][PlatformBadge]][PlatformLink]
 
