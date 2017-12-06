@@ -1,12 +1,8 @@
 # 🚣 Navigator
 
-Easily find and navigate to any ViewController inside your app, from anywhere.
+[![Swift4 compatible][Swift4Badge]][Swift4Link]
 
-[![Build Status][TravisBadge]][TravisLink] [![Swift4 compatible][Swift4Badge]][Swift4Link] [![Platform][PlatformBadge]][PlatformLink]
-
-A simple way to find and navigate to any ViewController in your app, from anywhere.
-
-Find any UIViewController in the view hierarchy by passing just the class Type and automatically navigate to it.
+Easily find and navigate to any ViewController inside your app by passing just the class Type.
 
 **Navigator.swift** will look for it recursively inside UITabBarController, UINavigationController, UIViewController.childViewControllers, UIViewController.presentedViewController. 
 
@@ -68,12 +64,6 @@ file](./LICENSE.txt) for more information.
 
 
 [Swift]: https://swift.org/
-
-[TravisBadge]: https://img.shields.io/travis/stephencelis/SQLite.swift/master.svg?style=flat
-[TravisLink]: https://travis-ci.org/stephencelis/SQLite.swift
-
-[PlatformBadge]: https://cocoapod-badges.herokuapp.com/p/SQLite.swift/badge.png
-[PlatformLink]: http://cocoadocs.org/docsets/SQLite.swift
 
 [Swift4Badge]: https://img.shields.io/badge/swift-4-orange.svg?style=flat
 [Swift4Link]: https://developer.apple.com/swift/
