@@ -1,4 +1,4 @@
-# Navigator
+# 🚣 Navigator
 
 Easily find and navigate to any ViewController inside your app, from anywhere.
 
@@ -14,6 +14,7 @@ Get the instance synchronously or asynchronously, on the main thread.
 
 
 ## Usage
+
 Getting your UIViewController instance synchronously:
 ```swift
 let MyViewControllerInstance = Navigator.find(MyViewController.self)
@@ -34,9 +35,9 @@ Navigator.find(MyViewController.self) { (MyViewControllerInstance) in
 
 ...and automatically navigate to it:
 ```swift
-Navigator.find(MyViewController.self, navigateTo: true)?.doSomething()
+Navigator.find(MyViewController.self, navigate: true)?.doSomething()
 
-Navigator.find(MyViewController.self, navigateTo: true) { (MyViewControllerInstance) in
+Navigator.find(MyViewController.self, navigate: true) { (MyViewControllerInstance) in
     MyViewControllerInstance.doSomething()
 }
 ```
