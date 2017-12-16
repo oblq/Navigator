@@ -23,9 +23,140 @@
 
 import UIKit
 
+// MARK: -
+// MARK: Navigator class
+
+public class Navigator {
+	
+	public static let debug = true
+	
+	public typealias asyncMainHandler<T> = ((_ container: UIViewController?, _ vc: T?) -> ())?
+	
+	@discardableResult public static func find<T>(_ type: T.Type, asyncMain: asyncMainHandler<T> = nil) -> T? where T: UIViewController {
+		return lookFor(type, navigate: false, asyncMain: asyncMain)
+	}
+	@discardableResult public static func navigate<T>(to: T.Type, asyncMain: asyncMainHandler<T> = nil) -> T? where T: UIViewController {
+		return lookFor(to, navigate: true, asyncMain: asyncMain)
+	}
+	
+	@discardableResult static func lookFor<T>(_ type: T.Type,
+												  navigate: Bool = false,
+												  asyncMain: asyncMainHandler<T> = nil) -> T? where T: UIViewController {
+		
+		// recursive search
+		func checkIn(_ viewController: UIViewController?, stack: [StackObject] = [StackObject](), indent: String = "") -> [StackObject] {
+			
+			var stack = stack
+			
+			switch viewController {
+			case is T:
+				logNavigation(msg: indent + "-> Found!")
+				if stack.last != nil {
+					stack[stack.count - 1].vc = viewController
+				}
+				return stack
+
+			case let container? where container.childViewControllers.count > 0:
+//				logNavigation(msg: indent + "\(container)")
+				if stack.last != nil {
+					stack[stack.count - 1].vc = viewController
+				}
+				for vc in container.childViewControllers {
+					logNavigation(msg: indent + "-> in childs: \(vc)")
+					let subStack = checkIn(vc, stack: [StackObject(container: container, vc: nil)], indent: indent + "    ")
+					if subStack.last?.vc is T {
+						stack.append(contentsOf: subStack)
+						return stack
+					}
+				}
+				fallthrough
+
+			default:
+				if let container = viewController,
+					let pvc = container.presentedViewController {
+					logNavigation(msg: indent + "-> presentedViewController: \(pvc)")
+					if stack.last != nil {
+						stack[stack.count - 1].vc = viewController
+					}
+					let subStack = checkIn(pvc, stack: stack, indent: indent + "    ")
+					if subStack.last?.vc is T {
+						stack.append(contentsOf: subStack)
+						return stack
+					}
+					return stack
+				}
+				return stack
+			}
+		}
+		
+		logNavigation(msg: "") // empty line...
+		logNavigation(msg: "[INFO]: Disable debug var inside Navigator class to shut down those comments")
+
+		let stack = checkIn(APP_ROOT)
+		DispatchQueue.main.async(execute: { () -> Void in
+			logNavigation(msg: "The navigation stack: \(stack as AnyObject)")
+			logNavigation(msg: "") // empty line...
+			if navigate {
+				for obj in stack {
+					obj.select()
+				}
+			}
+			asyncMain?(stack.last?.container, stack.last?.vc as? T)
+		})
+
+		return stack.last?.vc as? T
+	}
+	
+	static func logNavigation(msg: String) {
+		if debug {
+			print(msg)
+		}
+	}
+	
+}
+
+struct StackObject {
+	var container: UIViewController?
+	var vc: UIViewController?
+	
+	func select() {
+		switch container {
+		case let container? where container is UITabBarController:
+			guard let vc = vc else {
+				return
+			}
+			(container as! UITabBarController).selectedViewController = vc
+			
+		case let container? where container is UISplitViewController:
+			guard let vc = vc else {
+				return
+			}
+			(container as! UISplitViewController).showDetailViewController(vc, sender: nil)
+			
+		case let container? where container is UINavigationController:
+			guard let vc = vc else {
+				return
+			}
+			let container = container as! UINavigationController
+			container.popToRootViewController(animated: false)
+			if container.topViewController != vc {
+				container.show(vc, sender: nil)
+			}
+			
+		default:
+			return
+		}
+	}
+}
+
+
+// MARK: -
+// MARK: Globals
+
 // Returns the AppDelegate
 public let APP_DELEGATE = UIApplication.shared.delegate
 
+// Returns the App Window
 public var APP_KEY_WINDOW: UIWindow? {
 	get {
 		return UIApplication.shared.keyWindow
@@ -67,161 +198,4 @@ public var APP_TOP_VC: UIViewController? {
 		topController = topController!.presentedViewController
 	}
 	return topController
-}
-
-public class Navigator {
-	
-	public static let debug = false
-
-	struct StackObject {
-		var parent: UIViewController?
-		var vc: UIViewController?
-		
-		func select() {
-			switch parent {
-			case let parent? where parent is UITabBarController:
-				guard let vc = vc else {
-					return
-				}
-				(parent as! UITabBarController).selectedViewController = vc
-				
-			case let parent? where parent is UINavigationController:
-				guard let vc = vc else {
-					return
-				}
-				let parent = parent as! UINavigationController
-				parent.popToRootViewController(animated: false)
-				if parent.topViewController != vc {
-					parent.show(vc, sender: nil)
-				}
-				
-			default:
-				return
-			}
-		}
-	}
-	
-	@discardableResult public static func find<T>(_ viewControllerType: T.Type,
-													 navigate: Bool = false,
-													 asyncMain: ((_ parent: UIViewController?, _ vc: T?) -> ())? = nil) -> T? where T: UIViewController {
-		
-		
-		func checkIn(_ viewController: UIViewController?, stack: [StackObject], indent: String = "") -> [StackObject] {
-			
-			var stack = stack
-			
-			switch viewController {
-			case is T:
-				logNavigation(msg: indent + "-> Found!")
-				if stack.last != nil {
-					stack[stack.count - 1].vc = viewController
-				}
-				return stack
-				
-			case let tab as UITabBarController where tab.viewControllers != nil:
-				logNavigation(msg: indent + "Tab found: \(tab)")
-				if stack.last != nil {
-					stack[stack.count - 1].vc = viewController
-				}
-				for vc in tab.viewControllers! {
-					logNavigation(msg: indent + "-> in tab: \(vc)")
-					let subStack = checkIn(vc, stack: [StackObject(parent: tab, vc: nil)], indent: indent + "    ")
-					if subStack.last?.vc is T {
-						stack.append(contentsOf: subStack)
-						return stack
-					}
-				}
-				if let presented = tab.presentedViewController {
-					logNavigation(msg: indent + "Has presentedViewController: \(presented)")
-					if stack.last != nil {
-						stack[stack.count - 1].vc = viewController
-					}
-					let subStack = checkIn(presented, stack: stack, indent: indent + " ")
-					if subStack.last?.vc is T {
-						stack.append(contentsOf: subStack)
-						return stack
-					}
-				}
-				return stack
-
-			case let nav as UINavigationController:
-				logNavigation(msg: indent + "Nav found: \(nav)")
-				if stack.last != nil {
-					stack[stack.count - 1].vc = viewController
-				}
-				for vc in nav.viewControllers {
-					logNavigation(msg: indent + "-> in nav: \(vc)")
-					let subStack = checkIn(vc, stack: [StackObject(parent: nav, vc: nil)], indent: indent + "    ")
-					if subStack.last?.vc is T {
-						stack.append(contentsOf: subStack)
-						return stack
-					}
-				}
-				if let presented = nav.presentedViewController {
-					logNavigation(msg: indent + "Has presentedViewController: \(presented)")
-					if stack.last != nil {
-						stack[stack.count - 1].vc = viewController
-					}
-					let subStack = checkIn(presented, stack: stack, indent: indent + " ")
-					if subStack.last?.vc is T {
-						stack.append(contentsOf: subStack)
-						return stack
-					}
-				}
-				return stack
-
-			case let parent? where parent.childViewControllers.count > 0:
-				logNavigation(msg: indent + "Has childs: \(parent)")
-				if stack.last != nil {
-					stack[stack.count - 1].vc = viewController
-				}
-				for vc in parent.childViewControllers {
-					logNavigation(msg: indent + "-> in childs: \(vc)")
-					let subStack = checkIn(vc, stack: [StackObject(parent: parent, vc: nil)], indent: indent + "    ")
-					if subStack.last?.vc is T {
-						stack.append(contentsOf: subStack)
-						return stack
-					}
-				}
-				return stack
-
-			case let parent? where parent.presentedViewController != nil:
-				logNavigation(msg: indent + "Has presentedViewController: \(parent)")
-				if stack.last != nil {
-					stack[stack.count - 1].vc = viewController
-				}
-				let subStack = checkIn(parent.presentedViewController, stack: stack, indent: indent + " ")
-				if subStack.last?.vc is T {
-					stack.append(contentsOf: subStack)
-					return stack
-				}
-				return stack
-
-			default:
-				return stack
-			}
-		}
-		
-		logNavigation(msg: "") // empty line...
-		let stack = checkIn(APP_ROOT, stack: [StackObject]())
-		DispatchQueue.main.async(execute: { () -> Void in
-			logNavigation(msg: "The navigation stack: \(stack as AnyObject)")
-			logNavigation(msg: "") // empty line...
-			if navigate {
-				for obj in stack {
-					obj.select()
-				}
-			}
-			asyncMain?(stack.last?.parent, stack.last?.vc as? T)
-		})
-
-		return stack.last?.vc as? T
-	}
-	
-	static func logNavigation(msg: String) {
-		if debug {
-			print(msg)
-		}
-	}
-	
 }

@@ -2,11 +2,12 @@
 
 [![Swift4 compatible][Swift4Badge]][Swift4Link]
 
-Easily find and navigate to any ViewController inside your app by passing just the class Type.
-
-**Navigator.swift** will look for it recursively inside UITabBarController, UINavigationController, UIViewController.childViewControllers, UIViewController.presentedViewController. 
-
-Get the instance synchronously or asynchronously, on the main thread.
+Easily find and navigate to any ViewController inside your app by passing just 
+the class Type and get the instance synchronously or asynchronously (on the main thread).
+Navigator is a central navigation system for your application.
+This way the code becomes declarative and decoupled, so that **Navigator.swift** 
+does not need to know what is presenting.
+It also makes simple to handle external requests such as deep linking.  
 
 
 ## Usage
@@ -14,28 +15,37 @@ Get the instance synchronously or asynchronously, on the main thread.
 Getting your UIViewController instance synchronously:
 ```swift
 let MyViewControllerInstance = Navigator.find(MyViewController.self)
-MyViewControllerInstance?.doSomething()
+MyViewControllerInstance?.doSomethingSync()
 ```
 or...
 ```swift
-Navigator.find(MyViewController.self)?.doSomething()
+Navigator.find(MyViewController.self)?.doSomethingSync()
 ```
 
 
 Getting your UIViewController instance asynchronously, on the main thread:
 ```swift
-Navigator.find(MyViewController.self) { (MyViewControllerInstance) in
-    MyViewControllerInstance.doSomething()
+Navigator.find(MyViewController.self) { (MyViewControllerContainer, MyViewControllerInstance) in
+    MyViewControllerInstance?.doSomethingAsync()
 }
 ```
 
 ...and automatically navigate to it:
 ```swift
-Navigator.find(MyViewController.self, navigate: true)?.doSomething()
+Navigator.navigate(to: MyViewController.self)?.doSomethingSync()
 
-Navigator.find(MyViewController.self, navigate: true) { (MyViewControllerInstance) in
-    MyViewControllerInstance.doSomething()
+Navigator.navigate(to: MyViewController.self) { (MyViewControllerContainer, MyViewControllerInstance) in
+    MyViewControllerInstance?.doSomethingAsync()
 }
+```
+
+## Globals
+```swift
+APP_DELEGATE // Returns the AppDelegate
+APP_KEY_WINDOW // Returns the App Window
+APP_ROOT // Returns the root viewController also if it is not in the view hierarchy
+APP_ROOT_VH // Returns the root viewController which is in the view hierarchy
+APP_TOP_VC // Returns the top most viewController
 ```
 
 ## Installation
