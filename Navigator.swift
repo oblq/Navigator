@@ -50,19 +50,18 @@ public class Navigator {
 			
 			switch viewController {
 			case is T:
-				logNavigation(msg: indent + "-> Found!")
+				nLog(msg: indent + "-> Found!")
 				if stack.last != nil {
 					stack[stack.count - 1].vc = viewController
 				}
 				return stack
 
 			case let container? where container.childViewControllers.count > 0:
-//				logNavigation(msg: indent + "\(container)")
 				if stack.last != nil {
 					stack[stack.count - 1].vc = viewController
 				}
 				for vc in container.childViewControllers {
-					logNavigation(msg: indent + "-> in childs: \(vc)")
+					nLog(msg: indent + "-> in childs: \(vc)")
 					let subStack = checkIn(vc, stack: [StackObject(container: container, vc: nil)], indent: indent + "    ")
 					if subStack.last?.vc is T {
 						stack.append(contentsOf: subStack)
@@ -74,7 +73,7 @@ public class Navigator {
 			default:
 				if let container = viewController,
 					let pvc = container.presentedViewController {
-					logNavigation(msg: indent + "-> presentedViewController: \(pvc)")
+					nLog(msg: indent + "-> presentedViewController: \(pvc)")
 					if stack.last != nil {
 						stack[stack.count - 1].vc = viewController
 					}
@@ -89,13 +88,13 @@ public class Navigator {
 			}
 		}
 		
-		logNavigation(msg: "") // empty line...
-		logNavigation(msg: "[INFO]: Disable debug var inside Navigator class to shut down those comments")
+		nLog(msg: "") // empty line...
+		nLog(msg: "[INFO]: Disable debug var inside Navigator class to shut down those comments")
 
 		let stack = checkIn(APP_ROOT)
 		DispatchQueue.main.async(execute: { () -> Void in
-			logNavigation(msg: "The navigation stack: \(stack as AnyObject)")
-			logNavigation(msg: "") // empty line...
+			nLog(msg: "The navigation stack: \(stack as AnyObject)")
+			nLog(msg: "") // empty line...
 			if navigate {
 				for obj in stack {
 					obj.select()
@@ -107,7 +106,7 @@ public class Navigator {
 		return stack.last?.vc as? T
 	}
 	
-	static func logNavigation(msg: String) {
+	static func nLog(msg: String) {
 		if debug {
 			print(msg)
 		}
@@ -120,23 +119,18 @@ struct StackObject {
 	var vc: UIViewController?
 	
 	func select() {
+		guard let vc = vc else {
+			return
+		}
+		
 		switch container {
 		case let container? where container is UITabBarController:
-			guard let vc = vc else {
-				return
-			}
 			(container as! UITabBarController).selectedViewController = vc
 			
 		case let container? where container is UISplitViewController:
-			guard let vc = vc else {
-				return
-			}
 			(container as! UISplitViewController).showDetailViewController(vc, sender: nil)
 			
 		case let container? where container is UINavigationController:
-			guard let vc = vc else {
-				return
-			}
 			let container = container as! UINavigationController
 			container.popToRootViewController(animated: false)
 			if container.topViewController != vc {
@@ -157,7 +151,7 @@ struct StackObject {
 public let APP_DELEGATE = UIApplication.shared.delegate
 
 // Returns the App Window
-public var APP_KEY_WINDOW: UIWindow? {
+public var APP_WINDOW: UIWindow? {
 	get {
 		return UIApplication.shared.keyWindow
 	}
@@ -166,7 +160,7 @@ public var APP_KEY_WINDOW: UIWindow? {
 // Returns the root viewController also if it is not in the view hierarchy
 public var APP_ROOT: UIViewController? {
 	get {
-		var root = APP_KEY_WINDOW?.rootViewController
+		var root = APP_WINDOW?.rootViewController
 		while root?.presentingViewController != nil {
 			root = root?.presentingViewController
 		}
@@ -192,7 +186,7 @@ public var APP_ROOT_VH: UIViewController? {
 }
 
 // Returns the top most viewController
-public var APP_TOP_VC: UIViewController? {
+public var APP_TOP: UIViewController? {
 	var topController = APP_ROOT_VH
 	while topController?.presentedViewController != nil {
 		topController = topController!.presentedViewController

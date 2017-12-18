@@ -42,10 +42,10 @@ Navigator.navigate(to: MyViewController.self) { (MyViewControllerContainer, MyVi
 ## Globals
 ```swift
 APP_DELEGATE // Returns the AppDelegate
-APP_KEY_WINDOW // Returns the App Window
+APP_WINDOW // Returns the App Window
 APP_ROOT // Returns the root viewController also if it is not in the view hierarchy
 APP_ROOT_VH // Returns the root viewController which is in the view hierarchy
-APP_TOP_VC // Returns the top most viewController
+APP_TOP // Returns the top most viewController
 ```
 
 ## Installation
