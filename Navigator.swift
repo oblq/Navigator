@@ -26,9 +26,15 @@ import UIKit
 // MARK: -
 // MARK: Navigator class
 
+public extension UIViewController {
+	@discardableResult public class func runningInstance() -> Self? {
+		return Navigator.find(self)
+	}
+}
+
 public class Navigator {
 	
-	public static let debug = true
+	public static let debug = false
 	
 	public typealias asyncMainHandler<T> = ((_ container: UIViewController?, _ vc: T?) -> ())?
 	
@@ -39,9 +45,7 @@ public class Navigator {
 		return lookFor(to, navigate: true, asyncMain: asyncMain)
 	}
 	
-	@discardableResult static func lookFor<T>(_ type: T.Type,
-												  navigate: Bool = false,
-												  asyncMain: asyncMainHandler<T> = nil) -> T? where T: UIViewController {
+	@discardableResult private static func lookFor<T>(_ type: T.Type, navigate: Bool = false, asyncMain: asyncMainHandler<T>) -> T? where T: UIViewController {
 		
 		// recursive search
 		func checkIn(_ viewController: UIViewController?, stack: [StackObject] = [StackObject](), indent: String = "") -> [StackObject] {
@@ -50,7 +54,7 @@ public class Navigator {
 			
 			switch viewController {
 			case is T:
-				nLog(msg: indent + "-> Found!")
+				NLog(indent + "-> Found!")
 				if stack.last != nil {
 					stack[stack.count - 1].vc = viewController
 				}
@@ -61,19 +65,19 @@ public class Navigator {
 					stack[stack.count - 1].vc = viewController
 				}
 				for vc in container.childViewControllers {
-					nLog(msg: indent + "-> in childs: \(vc)")
+					NLog(indent + "-> in childs: \(vc)")
 					let subStack = checkIn(vc, stack: [StackObject(container: container, vc: nil)], indent: indent + "    ")
 					if subStack.last?.vc is T {
 						stack.append(contentsOf: subStack)
 						return stack
 					}
 				}
-				fallthrough
+				fallthrough // not found, check for presentedViewController in default case
 
 			default:
 				if let container = viewController,
 					let pvc = container.presentedViewController {
-					nLog(msg: indent + "-> presentedViewController: \(pvc)")
+					NLog(indent + "-> presentedViewController: \(pvc)")
 					if stack.last != nil {
 						stack[stack.count - 1].vc = viewController
 					}
@@ -88,13 +92,13 @@ public class Navigator {
 			}
 		}
 		
-		nLog(msg: "") // empty line...
-		nLog(msg: "[INFO]: Disable debug var inside Navigator class to shut down those comments")
+		NLog("") // empty line...
+		NLog("[INFO]: Disable debug var inside Navigator class to shut down those comments")
 
 		let stack = checkIn(APP_ROOT)
 		DispatchQueue.main.async(execute: { () -> Void in
-			nLog(msg: "The navigation stack: \(stack as AnyObject)")
-			nLog(msg: "") // empty line...
+			NLog("The navigation stack: \(stack as AnyObject)")
+			NLog("") // empty line...
 			if navigate {
 				for obj in stack {
 					obj.select()
@@ -106,9 +110,9 @@ public class Navigator {
 		return stack.last?.vc as? T
 	}
 	
-	static func nLog(msg: String) {
+	static func NLog(_ items: Any...) {
 		if debug {
-			print(msg)
+			debugPrint(items)
 		}
 	}
 	
@@ -133,6 +137,7 @@ struct StackObject {
 		case let container? where container is UINavigationController:
 			let container = container as! UINavigationController
 			container.popToRootViewController(animated: false)
+			// avoid pushing the same vc twice:
 			if container.topViewController != vc {
 				container.show(vc, sender: nil)
 			}
