@@ -15,27 +15,27 @@ It also makes simple to handle external requests such as deep linking.
 Getting your UIViewController instance synchronously:
 ```swift
 let MyViewControllerInstance = Navigator.find(MyViewController.self)
-MyViewControllerInstance?.doSomethingSync()
+MyViewControllerInstance?.MyViewControllerFunc()
 ```
 or...
 ```swift
-Navigator.find(MyViewController.self)?.doSomethingSync()
+Navigator.find(MyViewController.self)?.MyViewControllerFunc()
 ```
 
 
 Getting your UIViewController instance asynchronously, on the main thread:
 ```swift
 Navigator.find(MyViewController.self) { (MyViewControllerContainer, MyViewControllerInstance) in
-    MyViewControllerInstance?.doSomethingAsync()
+    MyViewControllerInstance?.MyViewControllerFunc()
 }
 ```
 
 ...and automatically navigate to it:
 ```swift
-Navigator.navigate(to: MyViewController.self)?.doSomethingSync()
+Navigator.navigate(to: MyViewController.self)?.MyViewControllerFunc()
 
 Navigator.navigate(to: MyViewController.self) { (MyViewControllerContainer, MyViewControllerInstance) in
-    MyViewControllerInstance?.doSomethingAsync()
+    MyViewControllerInstance?.MyViewControllerFunc()
 }
 ```
 
