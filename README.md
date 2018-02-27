@@ -14,14 +14,8 @@ It also makes simple to handle external requests such as deep linking.
 
 Getting your UIViewController instance synchronously:
 ```swift
-let MyViewControllerInstance = Navigator.find(MyViewController.self)
-MyViewControllerInstance?.MyViewControllerFunc()
-```
-or...
-```swift
 Navigator.find(MyViewController.self)?.MyViewControllerFunc()
 ```
-
 
 Getting your UIViewController instance asynchronously, on the main thread:
 ```swift
@@ -30,7 +24,7 @@ Navigator.find(MyViewController.self) { (MyViewControllerContainer, MyViewContro
 }
 ```
 
-...and automatically navigate to it:
+...or automatically navigate to it:
 ```swift
 Navigator.navigate(to: MyViewController.self)?.MyViewControllerFunc()
 
