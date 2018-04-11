@@ -43,6 +43,11 @@ public class Navigator {
 		}
 	}
 	
+	static var cache = [String: [StackObject]]()
+	public static func purgeCache() {
+		Navigator.cache.removeAll()
+	}
+
 	public typealias asyncMainHandler<T> = ((_ container: UIViewController?, _ vc: T?) -> ())?
 	
 	@discardableResult public static func find<T: UIViewController>(_ type: T.Type, asyncMain: asyncMainHandler<T> = nil) -> T? {
@@ -101,19 +106,29 @@ public class Navigator {
 		
 		NLog("") // empty line...
 
-		let stack = checkIn(APP_ROOT)
+		// get stack from cache or scan the view hierarchy
+		var stack = Navigator.cache[String(describing: type)]
+		if stack == nil {
+			stack = checkIn(APP_ROOT)
+			if stack!.count > 0 {
+				Navigator.cache[String(describing: type)] = stack
+			}
+		} else {
+			NLog("Stack found on cache for \(String(describing: type))")
+		}
+
 		DispatchQueue.main.async(execute: { () -> Void in
 			NLog("Navigation stack: \(stack as AnyObject)")
 			NLog("") // empty line...
 			if navigate {
-				for obj in stack {
+				for obj in stack! {
 					obj.select()
 				}
 			}
-			asyncMain?(stack.last?.container, stack.last?.vc as? T)
+			asyncMain?(stack!.last?.container, stack!.last?.vc as? T)
 		})
 
-		return stack.last?.vc as? T
+		return stack!.last?.vc as? T
 	}
 	
 	static func NLog(_ msg: String) {
