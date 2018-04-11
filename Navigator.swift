@@ -34,7 +34,13 @@ public extension UIViewController {
 
 public class Navigator {
 	
-	public static let debug = false
+	public static var debug = false {
+		didSet {
+			if debug {
+				NLog("Disable debug var inside Navigator class to shut down those comments")
+			}
+		}
+	}
 	
 	public typealias asyncMainHandler<T> = ((_ container: UIViewController?, _ vc: T?) -> ())?
 	
@@ -93,11 +99,10 @@ public class Navigator {
 		}
 		
 		NLog("") // empty line...
-		NLog("[INFO]: Disable debug var inside Navigator class to shut down those comments")
 
 		let stack = checkIn(APP_ROOT)
 		DispatchQueue.main.async(execute: { () -> Void in
-			NLog("The navigation stack: \(stack as AnyObject)")
+			NLog("Navigation stack: \(stack as AnyObject)")
 			NLog("") // empty line...
 			if navigate {
 				for obj in stack {
@@ -110,12 +115,11 @@ public class Navigator {
 		return stack.last?.vc as? T
 	}
 	
-	static func NLog(_ items: Any...) {
-		if debug {
-			debugPrint(items)
+	static func NLog(_ msg: String) {
+		if debug && msg.count > 0 {
+			print("[Navigator]: \(msg)")
 		}
 	}
-	
 }
 
 struct StackObject {
