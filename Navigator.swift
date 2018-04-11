@@ -38,14 +38,14 @@ public class Navigator {
 	
 	public typealias asyncMainHandler<T> = ((_ container: UIViewController?, _ vc: T?) -> ())?
 	
-	@discardableResult public static func find<T>(_ type: T.Type, asyncMain: asyncMainHandler<T> = nil) -> T? where T: UIViewController {
+	@discardableResult public static func find<T: UIViewController>(_ type: T.Type, asyncMain: asyncMainHandler<T> = nil) -> T? {
 		return lookFor(type, navigate: false, asyncMain: asyncMain)
 	}
-	@discardableResult public static func navigate<T>(to: T.Type, asyncMain: asyncMainHandler<T> = nil) -> T? where T: UIViewController {
+	@discardableResult public static func navigate<T: UIViewController>(to: T.Type, asyncMain: asyncMainHandler<T> = nil) -> T? {
 		return lookFor(to, navigate: true, asyncMain: asyncMain)
 	}
 	
-	@discardableResult private static func lookFor<T>(_ type: T.Type, navigate: Bool = false, asyncMain: asyncMainHandler<T>) -> T? where T: UIViewController {
+	@discardableResult private static func lookFor<T: UIViewController>(_ type: T.Type, navigate: Bool = false, asyncMain: asyncMainHandler<T>) -> T? {
 		
 		// recursive search
 		func checkIn(_ viewController: UIViewController?, stack: [StackObject] = [StackObject](), indent: String = "") -> [StackObject] {
