@@ -45,11 +45,11 @@ Activate debug mode and whatch the view hierarchy printed on console:
 Navigator.debug = true
 ```
 
-You can also use the UiViewController extension with your UIViewController itself 
+You can also use the UIViewController extension with your UIViewController itself 
 if asynchronous operations are not needed:
 ```swift
-HelloClass.find()?.sayHello()
-HelloClass.navigate()?.sayHello()
+HelloVC.find()?.sayHello()
+HelloVC.navigate()?.sayHello()
 ```
 
 ## Globals
