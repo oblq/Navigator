@@ -5,7 +5,8 @@
 **Navigator.swift** allow decoupled navigation in iOS apps by just passing the viewController class type, 
 useful to handle external requests such as deep linking, push notifications or shortcuts 
 (open specific VC from AppDelegate) for instance and/or to simply call functions on VCs not directly accessible. 
-It also use cache for performance, you don’t need to worry about navigation logic after storyboard updates. 
+
+You don’t need anymore to worry about navigation logic after storyboard updates.
 
 ## Usage
 
@@ -35,7 +36,7 @@ Navigator.navigate(to: HelloVC.self) { (HelloVCContainer, HelloVCInstance) in
 }
 ```
 
-Empty the view hierarchy cache:
+Navigator cache the view hierarchy to be faster, you can empty it if needed:
 ```swift
 Navigator.purgeCache()
 ```
