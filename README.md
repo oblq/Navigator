@@ -2,35 +2,47 @@
 
 [![Swift4 compatible][Swift4Badge]][Swift4Link]
 
-Easily find and navigate to any ViewController inside your app by passing just 
-the class Type and get the instance synchronously or asynchronously (on the main thread).
-Navigator is a central navigation system for your application.
-This way the code becomes declarative and decoupled, so that **Navigator.swift** 
-does not need to know what is presenting.
-It also makes simple to handle external requests such as deep linking.  
-
+**Navigator.swift** allow decoupled navigation in iOS apps by just passing the viewController class type, 
+useful to handle external requests such as deep linking, push notifications or shortcuts 
+(open specific VC from AppDelegate) for instance and/or to simply call functions on VCs not directly accessible. 
+It also use cache for performance, you don’t need to worry about navigation logic after storyboard updates. 
 
 ## Usage
 
 Getting your UIViewController instance synchronously:
 ```swift
-Navigator.find(MyViewController.self)?.MyViewControllerFunc()
+Navigator.find(HelloVC.self)?.sayHello()
 ```
 
 Getting your UIViewController instance asynchronously, on the main thread:
 ```swift
-Navigator.find(MyViewController.self) { (MyViewControllerContainer, MyViewControllerInstance) in
-    MyViewControllerInstance?.MyViewControllerFunc()
+Navigator.find(HelloVC.self) { (HelloVCContainer, HelloVCInstance) in
+    HelloVCInstance?.sayHello()
 }
 ```
 
 ...or automatically navigate to it:
 ```swift
-Navigator.navigate(to: MyViewController.self)?.MyViewControllerFunc()
+// simply navigate to the HelloVC instance
+Navigator.navigate(to: HelloVC.self)
 
-Navigator.navigate(to: MyViewController.self) { (MyViewControllerContainer, MyViewControllerInstance) in
-    MyViewControllerInstance?.MyViewControllerFunc()
+// execute sayHello() synchronously
+Navigator.navigate(to: HelloVC.self)?.sayHello()
+
+// execute sayHello() asynchronously on the main thread
+Navigator.navigate(to: HelloVC.self) { (HelloVCContainer, HelloVCInstance) in
+    HelloVCInstance?.sayHello()
 }
+```
+
+Empty the view hierarchy cache:
+```swift
+Navigator.purgeCache()
+```
+
+Activate debug mode and whatch the view hierarchy printed on console:
+```swift
+Navigator.debug = true
 ```
 
 ## Globals
