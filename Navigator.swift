@@ -26,8 +26,12 @@ import UIKit
 // MARK: -
 // MARK: UIViewController extension
 public extension UIViewController {
-	@discardableResult public class func runningInstance() -> Self? {
+	@discardableResult public static func find() -> Self? {
 		return Navigator.find(self)
+	}
+	
+	@discardableResult public static func navigate() -> Self? {
+		return Navigator.navigate(to: self)
 	}
 }
 
@@ -48,7 +52,7 @@ public class Navigator {
 		Navigator.cache.removeAll()
 	}
 
-	public typealias asyncMainHandler<T> = ((_ container: UIViewController?, _ vc: T?) -> ())?
+	public typealias asyncMainHandler<T: UIViewController> = ((_ container: UIViewController?, _ vc: T?) -> ())?
 	
 	@discardableResult public static func find<T: UIViewController>(_ type: T.Type, asyncMain: asyncMainHandler<T> = nil) -> T? {
 		return lookFor(type, navigate: false, asyncMain: asyncMain)
