@@ -9,7 +9,7 @@ It also use cache for performance, you don’t need to worry about navigation lo
 
 ## Usage
 
-Getting your UIViewController instance synchronously:
+Getting your UIViewController instance synchronously, the return type is automatically inferred (class of HelloVC in that case):
 ```swift
 Navigator.find(HelloVC.self)?.sayHello()
 ```
@@ -43,6 +43,13 @@ Navigator.purgeCache()
 Activate debug mode and whatch the view hierarchy printed on console:
 ```swift
 Navigator.debug = true
+```
+
+You can also use the UiViewController extension with your UIViewController itself 
+if asynchronous operations are not needed:
+```swift
+HelloClass.find()?.sayHello()
+HelloClass.navigate()?.sayHello()
 ```
 
 ## Globals
