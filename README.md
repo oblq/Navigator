@@ -6,7 +6,8 @@
 useful to handle external requests such as deep linking, push notifications or shortcuts 
 (open specific VC from AppDelegate) for instance and/or to simply call functions on VCs not directly accessible. 
 
-You don’t need anymore to worry about navigation logic after storyboard updates.
+Navigator is decoupled from the navigation logic in your storyboard, it works with UITabBarController, UISplitViewController and UINavigationController.
+If you use custom containers in your view hierarchy then you can navigate to them and complete navigation steps in closure.
 
 ## Usage
 
