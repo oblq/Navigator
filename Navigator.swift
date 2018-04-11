@@ -24,14 +24,15 @@
 import UIKit
 
 // MARK: -
-// MARK: Navigator class
-
+// MARK: UIViewController extension
 public extension UIViewController {
 	@discardableResult public class func runningInstance() -> Self? {
 		return Navigator.find(self)
 	}
 }
 
+// MARK: -
+// MARK: Navigator class
 public class Navigator {
 	
 	public static let debug = false
