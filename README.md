@@ -4,9 +4,13 @@
 
 **Navigator.swift** allow decoupled navigation in iOS apps by just passing the viewController class type, 
 useful to handle external requests such as deep linking, push notifications or shortcuts 
-(open specific VC from AppDelegate) for instance and/or to simply call functions on VCs not directly accessible. 
+(open specific VC from AppDelegate) and/or to simply call functions on VCs not directly accessible. 
 
-Navigator is decoupled from the navigation logic in your storyboard and it operates on all native container view controllers (UITabBarController, UISplitViewController and UINavigationController) instantiated in your view hierarchy.
+Navigator is decoupled from the navigation logic in your storyboard, it recursively scan all instantiated view controllers in your view hierarchy looking for the class.Type you're searching for in childs and/or presentedViewController and save the route in cache for next calls.
+
+It can then navigate to it using all native container view controllers fnctions (UITabBarController, UISplitViewController and UINavigationController). 
+
+NOTE:
 If you use custom containers then you can navigate to them and complete navigation steps in closure, same for not loaded UIViewControllers.
 
 ## Usage
