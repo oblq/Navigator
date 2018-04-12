@@ -38,7 +38,7 @@ Navigator.navigate(to: HelloVC.self) { (HelloVCContainer, HelloVCInstance) in
 }
 ```
 
-You can also use the UIViewController extension on you view controller itself, it returns the vc instance synchronously:
+You can also use the UIViewController extension on your view controller itself, it returns the vc instance synchronously:
 ```swift
 HelloVC.find()?.sayHello()
 HelloVC.navigate()
