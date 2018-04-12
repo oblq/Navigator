@@ -6,8 +6,8 @@
 useful to handle external requests such as deep linking, push notifications or shortcuts 
 (open specific VC from AppDelegate) for instance and/or to simply call functions on VCs not directly accessible. 
 
-Navigator is decoupled from the navigation logic in your storyboard, it works with UITabBarController, UISplitViewController and UINavigationController.
-If you use custom containers in your view hierarchy then you can navigate to them and complete navigation steps in closure.
+Navigator is decoupled from the navigation logic in your storyboard and it operates on all native container view controllers (UITabBarController, UISplitViewController and UINavigationController) instantiated in your view hierarchy.
+If you use custom containers then you can navigate to them and complete navigation steps in closure, same for not loaded UIViewControllers.
 
 ## Usage
 
