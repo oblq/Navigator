@@ -15,13 +15,15 @@ If you use custom containers then you can navigate to them and complete navigati
 
 ## Usage
 
-Getting your UIViewController instance synchronously, the return type is automatically inferred (class of HelloVC in that case):
+Getting your UIViewController instance (and its container), the return type is automatically inferred:
 ```swift
-Navigator.find(HelloVC.self)?.sayHello()
-```
+// synchronously, using UIViewController extension on you view controller itself:
+HelloVC.find()?.sayHello()
 
-Getting your UIViewController instance asynchronously, on the main thread:
-```swift
+// synchronously
+Navigator.find(HelloVC.self)?.sayHello()
+
+// asynchronously, on the main thread:
 Navigator.find(HelloVC.self) { (HelloVCContainer, HelloVCInstance) in
     HelloVCInstance?.sayHello()
 }
@@ -29,14 +31,17 @@ Navigator.find(HelloVC.self) { (HelloVCContainer, HelloVCInstance) in
 
 ...or automatically navigate to it:
 ```swift
-// simply navigate to the HelloVC instance
-Navigator.navigate(to: HelloVC.self)
+// synchronously, using UIViewController extension on you view controller itself:
+HelloVC.navigate()
+// ...also call an HelloVC's function:
+HelloVC.navigate()?.sayHello()
 
-// execute sayHello() synchronously
+// navigate to the HelloVC instance and execute sayHello() synchronously
 Navigator.navigate(to: HelloVC.self)?.sayHello()
 
 // execute sayHello() asynchronously on the main thread
 Navigator.navigate(to: HelloVC.self) { (HelloVCContainer, HelloVCInstance) in
+    print(HelloVCContainer.childViewControllers as AnyObject)
     HelloVCInstance?.sayHello()
 }
 ```
@@ -46,16 +51,9 @@ Navigator cache the view hierarchy to be faster, you can empty it if needed:
 Navigator.purgeCache()
 ```
 
-Activate debug mode and whatch the view hierarchy printed on console:
+Activate debug and whatch the view hierarchy printed on console:
 ```swift
 Navigator.debug = true
-```
-
-You can also use the UIViewController extension with your UIViewController itself 
-if asynchronous operations are not needed:
-```swift
-HelloVC.find()?.sayHello()
-HelloVC.navigate()?.sayHello()
 ```
 
 ## Globals
