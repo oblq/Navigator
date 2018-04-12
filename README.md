@@ -17,9 +17,6 @@ If you use custom containers then you can navigate to them and complete navigati
 
 Getting your UIViewController instance (and its container), the return type is automatically inferred:
 ```swift
-// synchronously, using UIViewController extension on you view controller itself:
-HelloVC.find()?.sayHello()
-
 // synchronously
 Navigator.find(HelloVC.self)?.sayHello()
 
@@ -31,11 +28,6 @@ Navigator.find(HelloVC.self) { (HelloVCContainer, HelloVCInstance) in
 
 ...or automatically navigate to it:
 ```swift
-// synchronously, using UIViewController extension on you view controller itself:
-HelloVC.navigate()
-// ...also call an HelloVC's function:
-HelloVC.navigate()?.sayHello()
-
 // navigate to the HelloVC instance and execute sayHello() synchronously
 Navigator.navigate(to: HelloVC.self)?.sayHello()
 
@@ -44,6 +36,13 @@ Navigator.navigate(to: HelloVC.self) { (HelloVCContainer, HelloVCInstance) in
     print(HelloVCContainer.childViewControllers as AnyObject)
     HelloVCInstance?.sayHello()
 }
+```
+
+You can also use the UIViewController extension on you view controller itself, it returns the vc instance synchronously:
+```swift
+HelloVC.find()?.sayHello()
+HelloVC.navigate()
+HelloVC.navigate()?.sayHello()
 ```
 
 Navigator cache the view hierarchy to be faster, you can empty it if needed:
