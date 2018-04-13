@@ -25,6 +25,7 @@ import UIKit
 
 // MARK: -
 // MARK: UIViewController extension
+
 public extension UIViewController {
 	@discardableResult public static func find() -> Self? {
 		return Navigator.find(self)
@@ -37,6 +38,7 @@ public extension UIViewController {
 
 // MARK: -
 // MARK: Navigator class
+
 public class Navigator {
 	
 	public static var debug = false {
@@ -47,11 +49,16 @@ public class Navigator {
 		}
 	}
 	
-	static var cache = [String: [StackObject]]()
+	static var cache = [String: [ViewHierarchyObject]]()
+	
 	public static func purgeCache() {
 		Navigator.cache.removeAll()
 	}
-
+	
+	public static func purgeCacheFor(_ type: UIViewController.Type) {
+		Navigator.cache.removeValue(forKey: String(describing: type))
+	}
+	
 	public typealias asyncMainHandler<T: UIViewController> = ((_ container: UIViewController?, _ vc: T?) -> ())?
 	
 	@discardableResult public static func find<T: UIViewController>(_ type: T.Type, asyncMain: asyncMainHandler<T> = nil) -> T? {
@@ -61,31 +68,34 @@ public class Navigator {
 		return lookFor(to, navigate: true, asyncMain: asyncMain)
 	}
 	
-	@discardableResult private static func lookFor<T: UIViewController>(_ type: T.Type, navigate: Bool = false, asyncMain: asyncMainHandler<T>) -> T? {
+	@discardableResult private static func lookFor<T: UIViewController>(_ vcType: T.Type, navigate: Bool = false, asyncMain: asyncMainHandler<T>) -> T? {
 		
 		// recursive search
-		func checkIn(_ viewController: UIViewController?, stack: [StackObject] = [StackObject](), indent: String = "") -> [StackObject] {
+		func checkIn(_ viewController: UIViewController?, stack: [ViewHierarchyObject] = [ViewHierarchyObject](), indent: String = "") -> [ViewHierarchyObject] {
 			
 			var stack = stack
+			
+			func setLastVC() {
+				if stack.last != nil {
+					stack[stack.count - 1].vc = viewController
+				}
+			}
 			
 			switch viewController {
 			case is T:
 				NLog(indent + "-> Found!")
-				if stack.last != nil {
-					stack[stack.count - 1].vc = viewController
-				}
+				setLastVC()
 				return stack
 
 			case let container? where container.childViewControllers.count > 0:
-				if stack.last != nil {
-					stack[stack.count - 1].vc = viewController
-				}
+				setLastVC()
 				for vc in container.childViewControllers {
-					NLog(indent + "-> in childs: \(vc)")
-					let subStack = checkIn(vc, stack: [StackObject(container: container, vc: nil)], indent: indent + "    ")
+					NLog(indent + "-> in \(String(describing: type(of: vc))) childs:")
+					let subStack = checkIn(vc, stack: [ViewHierarchyObject(container: container, vc: nil)], indent: indent + "    ")
 					if subStack.last?.vc is T {
 						stack.append(contentsOf: subStack)
 						return stack
+					} else {
 					}
 				}
 				fallthrough // not found, check for presentedViewController in default case
@@ -93,37 +103,36 @@ public class Navigator {
 			default:
 				if let container = viewController,
 					let pvc = container.presentedViewController {
-					NLog(indent + "-> presentedViewController: \(pvc)")
-					if stack.last != nil {
-						stack[stack.count - 1].vc = viewController
-					}
+					setLastVC()
+					NLog(indent + "-> \(String(describing: type(of: pvc))).presentedViewController:")
 					let subStack = checkIn(pvc, stack: stack, indent: indent + "    ")
 					if subStack.last?.vc is T {
 						stack.append(contentsOf: subStack)
-						return stack
+					} else {
 					}
-					return stack
 				}
 				return stack
 			}
 		}
 		
 		NLog("") // empty line...
-
 		// get stack from cache or scan the view hierarchy
-		var stack = Navigator.cache[String(describing: type)]
+		var stack = Navigator.cache[String(describing: vcType)]
 		if stack == nil {
-			stack = checkIn(APP_ROOT)
-			if stack!.count > 0 {
-				Navigator.cache[String(describing: type)] = stack
+			guard let root = APP_ROOT else {
+				asyncMain?(nil, nil)
+				return nil
 			}
+			NLog("From \(String(describing: type(of: root)))...") // empty line...
+			stack = checkIn(root)
+			Navigator.cache[String(describing: vcType)] = stack
 		} else {
-			NLog("Stack found on cache for \(String(describing: type))")
+			NLog("\n'\(String(describing: vcType))' stack found on cache")
 		}
+		// NLog("\nNavigation stack: \(stack as AnyObject)\n")
+		NLog("") // empty line...
 
 		DispatchQueue.main.async(execute: { () -> Void in
-			NLog("Navigation stack: \(stack as AnyObject)")
-			NLog("") // empty line...
 			if navigate {
 				for obj in stack! {
 					obj.select()
@@ -136,13 +145,13 @@ public class Navigator {
 	}
 	
 	static func NLog(_ msg: String) {
-		if debug && msg.count > 0 {
-			print("[Navigator]: \(msg)")
+		if debug {
+			print(msg.count > 0 ? "[Navigator]: \(msg)" : msg)
 		}
 	}
 }
 
-struct StackObject {
+struct ViewHierarchyObject {
 	var container: UIViewController?
 	var vc: UIViewController?
 	
