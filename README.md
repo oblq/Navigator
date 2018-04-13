@@ -15,39 +15,43 @@ If you use custom containers then you can navigate to them and complete navigati
 
 ## Usage
 
-Getting your UIViewController instance (and its container), the return type is automatically inferred:
+Use the UIViewController extension on your view controller itself.
+It returns the vc instance (auto-inferred type) synchronously while navigation always happen async on the main thread:
+```swift
+// return the running instance and call one of its func in one line:
+HelloVC.find()?.sayHelloInConsole()
+// go to it
+HelloVC.navigate()
+HelloVC.navigate()?.sayHelloInConsole()
+```
+
+Using Navigator class (get the instance and also its container instances async) :
 ```swift
 // synchronously
-Navigator.find(HelloVC.self)?.sayHello()
+Navigator.find(HelloVC.self)?.sayHelloInConsole()
 
 // asynchronously, on the main thread:
 Navigator.find(HelloVC.self) { (HelloVCContainer, HelloVCInstance) in
-    HelloVCInstance?.sayHello()
+    print(HelloVCContainer.childViewControllers as AnyObject)
+    HelloVCInstance?.sayHelloWithAlert()
 }
-```
 
-...or automatically navigate to it:
-```swift
-// navigate to the HelloVC instance and execute sayHello() synchronously
-Navigator.navigate(to: HelloVC.self)?.sayHello()
+// navigate to the HelloVC instance and execute sayHelloInConsole() synchronously
+Navigator.navigate(to: HelloVC.self)?.sayHelloInConsole()
 
-// execute sayHello() asynchronously on the main thread
+// execute sayHelloWithAlert() asynchronously on the main thread
 Navigator.navigate(to: HelloVC.self) { (HelloVCContainer, HelloVCInstance) in
     print(HelloVCContainer.childViewControllers as AnyObject)
-    HelloVCInstance?.sayHello()
+    HelloVCInstance?.sayHelloWithAlert()
 }
 ```
 
-You can also use the UIViewController extension on your view controller itself, it returns the vc instance synchronously:
+Navigator cache the view hierarchy to be faster, you can empty it when needed:
 ```swift
-HelloVC.find()?.sayHello()
-HelloVC.navigate()
-HelloVC.navigate()?.sayHello()
-```
-
-Navigator cache the view hierarchy to be faster, you can empty it if needed:
-```swift
+// reset cache completely
 Navigator.purgeCache()
+// reset cache for a specific type only
+Navigator.purgeCacheFor(HelloVC.self)
 ```
 
 Activate debug and whatch the view hierarchy printed on console:
