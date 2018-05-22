@@ -30,9 +30,9 @@ public extension UIViewController {
 	@discardableResult public static func find() -> Self? {
 		return Navigator.find(self)
 	}
-	
-	@discardableResult public static func navigate() -> Self? {
-		return Navigator.navigate(to: self)
+
+	@discardableResult public static func select() -> Self? {
+		return Navigator.select(self)
 	}
 }
 
@@ -62,13 +62,13 @@ public class Navigator {
 	public typealias asyncMainHandler<T: UIViewController> = ((_ container: UIViewController?, _ vc: T?) -> ())?
 	
 	@discardableResult public static func find<T: UIViewController>(_ type: T.Type, asyncMain: asyncMainHandler<T> = nil) -> T? {
-		return lookFor(type, navigate: false, asyncMain: asyncMain)
+		return lookFor(type, select: false, asyncMain: asyncMain)
 	}
-	@discardableResult public static func navigate<T: UIViewController>(to: T.Type, asyncMain: asyncMainHandler<T> = nil) -> T? {
-		return lookFor(to, navigate: true, asyncMain: asyncMain)
+	@discardableResult public static func select<T: UIViewController>(_ type: T.Type, asyncMain: asyncMainHandler<T> = nil) -> T? {
+		return lookFor(type, select: true, asyncMain: asyncMain)
 	}
 	
-	@discardableResult private static func lookFor<T: UIViewController>(_ vcType: T.Type, navigate: Bool = false, asyncMain: asyncMainHandler<T>) -> T? {
+	@discardableResult private static func lookFor<T: UIViewController>(_ vcType: T.Type, select: Bool = false, asyncMain: asyncMainHandler<T>) -> T? {
 		
 		// recursive search
 		func checkIn(_ viewController: UIViewController?, stack: [ViewHierarchyObject] = [ViewHierarchyObject](), indent: String = "") -> [ViewHierarchyObject] {
@@ -133,7 +133,7 @@ public class Navigator {
 		NLog("") // empty line...
 
 		DispatchQueue.main.async(execute: { () -> Void in
-			if navigate {
+			if select {
 				for obj in stack! {
 					obj.select()
 				}
@@ -146,6 +146,7 @@ public class Navigator {
 	
 	static func NLog(_ msg: String) {
 		if debug {
+			APP_ROOT?.showMessage(msg.count > 0 ? "[Navigator]: \(msg)" : msg, type: NotifyType.info, options: nil)
 			print(msg.count > 0 ? "[Navigator]: \(msg)" : msg)
 		}
 	}

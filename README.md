@@ -21,8 +21,8 @@ It returns the vc instance (auto-inferred type) synchronously while navigation a
 // return the running instance and call one of its func in one line:
 HelloVC.find()?.sayHelloInConsole()
 // go to it
-HelloVC.navigate()
-HelloVC.navigate()?.sayHelloInConsole()
+HelloVC.select()
+HelloVC.select()?.sayHelloInConsole()
 ```
 
 Using Navigator class (get the instance and also its container instances async) :
@@ -37,10 +37,10 @@ Navigator.find(HelloVC.self) { (HelloVCContainer, HelloVCInstance) in
 }
 
 // navigate to the HelloVC instance and execute sayHelloInConsole() synchronously
-Navigator.navigate(to: HelloVC.self)?.sayHelloInConsole()
+Navigator.select(HelloVC.self)?.sayHelloInConsole()
 
 // execute sayHelloWithAlert() asynchronously on the main thread
-Navigator.navigate(to: HelloVC.self) { (HelloVCContainer, HelloVCInstance) in
+Navigator.select(HelloVC.self) { (HelloVCContainer, HelloVCInstance) in
     print(HelloVCContainer.childViewControllers as AnyObject)
     HelloVCInstance?.sayHelloWithAlert()
 }
