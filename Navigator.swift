@@ -146,7 +146,6 @@ public class Navigator {
 	
 	static func NLog(_ msg: String) {
 		if debug {
-			APP_ROOT?.showMessage(msg.count > 0 ? "[Navigator]: \(msg)" : msg, type: NotifyType.info, options: nil)
 			print(msg.count > 0 ? "[Navigator]: \(msg)" : msg)
 		}
 	}
