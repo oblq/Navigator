@@ -49,7 +49,7 @@ public class Navigator {
 		}
 	}
 	
-	static var cache = [String: [ViewHierarchyObject]]()
+	static var cache = [String: [StackObject]]()
 	
 	public static func purgeCache() {
 		Navigator.cache.removeAll()
@@ -61,37 +61,41 @@ public class Navigator {
 	
 	public typealias asyncMainHandler<T: UIViewController> = ((_ container: UIViewController?, _ vc: T?) -> ())?
 	
-	@discardableResult public static func find<T: UIViewController>(_ type: T.Type, asyncMain: asyncMainHandler<T> = nil) -> T? {
+	@discardableResult public static func find<T: UIViewController>(_ type: T.Type,
+																	asyncMain: asyncMainHandler<T> = nil) -> T? {
 		return lookFor(type, select: false, asyncMain: asyncMain)
 	}
-	@discardableResult public static func select<T: UIViewController>(_ type: T.Type, asyncMain: asyncMainHandler<T> = nil) -> T? {
+
+	@discardableResult public static func select<T: UIViewController>(_ type: T.Type,
+																	  asyncMain: asyncMainHandler<T> = nil) -> T? {
 		return lookFor(type, select: true, asyncMain: asyncMain)
 	}
 	
-	@discardableResult private static func lookFor<T: UIViewController>(_ vcType: T.Type, select: Bool = false, asyncMain: asyncMainHandler<T>) -> T? {
-		
+	@discardableResult private static func lookFor<T: UIViewController>(_ vcType: T.Type,
+																		select: Bool = false,
+																		asyncMain: asyncMainHandler<T>) -> T? {
 		// recursive search
-		func checkIn(_ viewController: UIViewController?, stack: [ViewHierarchyObject] = [ViewHierarchyObject](), indent: String = "") -> [ViewHierarchyObject] {
+		func checkIn(_ viewController: UIViewController?,
+					 stack: [StackObject] = [StackObject](),
+					 indent: String = "") -> [StackObject] {
 			
 			var stack = stack
-			
-			func setLastVC() {
-				if stack.last != nil {
-					stack[stack.count - 1].vc = viewController
-				}
-			}
 			
 			switch viewController {
 			case is T:
 				NLog(indent + "-> Found!")
-				setLastVC()
+				if stack.last != nil {
+					stack[stack.count - 1].vc = viewController
+				}
 				return stack
 
 			case let container? where container.childViewControllers.count > 0:
-				setLastVC()
+				if stack.last != nil {
+					stack[stack.count - 1].vc = viewController
+				}
 				for vc in container.childViewControllers {
 					NLog(indent + "-> in \(String(describing: type(of: vc))) childs:")
-					let subStack = checkIn(vc, stack: [ViewHierarchyObject(container: container, vc: nil)], indent: indent + "    ")
+					let subStack = checkIn(vc, stack: [StackObject(container: container, vc: nil)], indent: indent + "    ")
 					if subStack.last?.vc is T {
 						stack.append(contentsOf: subStack)
 						return stack
@@ -103,7 +107,9 @@ public class Navigator {
 			default:
 				if let container = viewController,
 					let pvc = container.presentedViewController {
-					setLastVC()
+					if stack.last != nil {
+						stack[stack.count - 1].vc = viewController
+					}
 					NLog(indent + "-> \(String(describing: type(of: pvc))).presentedViewController:")
 					let subStack = checkIn(pvc, stack: stack, indent: indent + "    ")
 					if subStack.last?.vc is T {
@@ -151,7 +157,7 @@ public class Navigator {
 	}
 }
 
-struct ViewHierarchyObject {
+struct StackObject {
 	var container: UIViewController?
 	var vc: UIViewController?
 	
