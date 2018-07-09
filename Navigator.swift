@@ -124,7 +124,9 @@ public class Navigator {
 		NLog("") // empty line...
 		// get stack from cache or scan the view hierarchy
 		var stack = Navigator.cache[String(describing: vcType)]
-		if stack == nil {
+		if let stack = stack, stack.last is T {
+			NLog("\n'\(String(describing: vcType))' stack found on cache")
+		} else {
 			guard let root = APP_ROOT else {
 				asyncMain?(nil, nil)
 				return nil
@@ -132,8 +134,6 @@ public class Navigator {
 			NLog("From \(String(describing: type(of: root)))...") // empty line...
 			stack = checkIn(root)
 			Navigator.cache[String(describing: vcType)] = stack
-		} else {
-			NLog("\n'\(String(describing: vcType))' stack found on cache")
 		}
 		// NLog("\nNavigation stack: \(stack as AnyObject)\n")
 		NLog("") // empty line...
