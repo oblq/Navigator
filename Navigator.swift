@@ -118,7 +118,7 @@ public class Navigator {
 			if select {
 				for obj in stack {
 					if !obj.select() {
-						NLog("unable to select one of the elements in the stack:\n\(stack as AnyObject)")"
+						NLog("unable to select one of the elements in the stack:\n\(stack as AnyObject)")
 						break
 					}
 				}
