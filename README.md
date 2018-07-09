@@ -6,7 +6,7 @@
 useful to handle external requests such as deep linking, push notifications or shortcuts 
 (open specific VC from AppDelegate) and/or to simply call functions on VCs not directly accessible. 
 
-Navigator is decoupled from the navigation logic in your storyboard, it recursively scan all instantiated view controllers in your view hierarchy looking for the class.Type you're searching for in childs and/or presentedViewController and save the route in cache for next calls.
+Navigator recursively scan all instantiated view controllers in your view hierarchy looking for the class.Type you're searching for in childs and/or presentedViewController and save the route in cache for next calls.
 
 It can then navigate to it using all native container view controllers functions (UITabBarController, UISplitViewController and UINavigationController). 
 

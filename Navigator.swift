@@ -48,36 +48,20 @@ public class Navigator {
 			}
 		}
 	}
-	
-	static var cache = [String: [StackObject]]()
-	
-	public static func purgeCache() {
-		Navigator.cache.removeAll()
-	}
-	
-	public static func purgeCacheFor(_ type: UIViewController.Type) {
-		Navigator.cache.removeValue(forKey: String(describing: type))
-	}
-	
+
 	public typealias asyncMainHandler<T: UIViewController> = ((_ container: UIViewController?, _ vc: T?) -> ())?
 	
-	@discardableResult public static func find<T: UIViewController>(_ type: T.Type,
-																	asyncMain: asyncMainHandler<T> = nil) -> T? {
+	@discardableResult public static func find<T: UIViewController>(_ type: T.Type, asyncMain: asyncMainHandler<T> = nil) -> T? {
 		return lookFor(type, select: false, asyncMain: asyncMain)
 	}
 
-	@discardableResult public static func select<T: UIViewController>(_ type: T.Type,
-																	  asyncMain: asyncMainHandler<T> = nil) -> T? {
+	@discardableResult public static func select<T: UIViewController>(_ type: T.Type, asyncMain: asyncMainHandler<T> = nil) -> T? {
 		return lookFor(type, select: true, asyncMain: asyncMain)
 	}
 	
-	@discardableResult private static func lookFor<T: UIViewController>(_ vcType: T.Type,
-																		select: Bool = false,
-																		asyncMain: asyncMainHandler<T>) -> T? {
+	@discardableResult private static func lookFor<T: UIViewController>(_ vcType: T.Type, select: Bool, asyncMain: asyncMainHandler<T>) -> T? {
 		// recursive search
-		func checkIn(_ viewController: UIViewController?,
-					 stack: [StackObject] = [StackObject](),
-					 indent: String = "") -> [StackObject] {
+		func checkIn(_ viewController: UIViewController?, stack: [StackObject] = [StackObject](), indent: String = "") -> [StackObject] {
 			
 			var stack = stack
 			
@@ -94,19 +78,22 @@ public class Navigator {
 					stack[stack.count - 1].vc = viewController
 				}
 				for vc in container.childViewControllers {
-					NLog(indent + "-> in \(String(describing: type(of: vc))) childs:")
+					NLog(indent + "-> \(String(describing: type(of: vc))):")
 					let subStack = checkIn(vc, stack: [StackObject(container: container, vc: nil)], indent: indent + "    ")
 					if subStack.last?.vc is T {
 						stack.append(contentsOf: subStack)
 						return stack
-					} else {
 					}
 				}
 				fallthrough // not found, check for presentedViewController in default case
 
 			default:
+				// The presentedViewController is != nil also when it has bee presented
+				// by an ancestor of the examined container.
+				// So we also need to check 'pvc.parent == container'.
 				if let container = viewController,
-					let pvc = container.presentedViewController {
+					let pvc = container.presentedViewController,
+					pvc.parent == container {
 					if stack.last != nil {
 						stack[stack.count - 1].vc = viewController
 					}
@@ -114,40 +101,33 @@ public class Navigator {
 					let subStack = checkIn(pvc, stack: stack, indent: indent + "    ")
 					if subStack.last?.vc is T {
 						stack.append(contentsOf: subStack)
-					} else {
 					}
 				}
 				return stack
 			}
 		}
-		
-		NLog("") // empty line...
-		// get stack from cache or scan the view hierarchy
-		var stack = Navigator.cache[String(describing: vcType)]
-		if let stack = stack, stack.last is T {
-			NLog("\n'\(String(describing: vcType))' stack found on cache")
-		} else {
-			guard let root = APP_ROOT else {
-				asyncMain?(nil, nil)
-				return nil
-			}
-			NLog("From \(String(describing: type(of: root)))...") // empty line...
-			stack = checkIn(root)
-			Navigator.cache[String(describing: vcType)] = stack
+
+		guard let root = APP_ROOT else {
+			asyncMain?(nil, nil)
+			return nil
 		}
-		// NLog("\nNavigation stack: \(stack as AnyObject)\n")
-		NLog("") // empty line...
+		NLog("From \(String(describing: type(of: root)))...")
+		let stack = checkIn(root)
 
 		DispatchQueue.main.async(execute: { () -> Void in
 			if select {
-				for obj in stack! {
-					obj.select()
+				for obj in stack {
+					if !obj.select() {
+						NLog("unable to select one of the elements in the stack:\n\(stack as AnyObject)")"
+						break
+					}
 				}
 			}
-			asyncMain?(stack!.last?.container, stack!.last?.vc as? T)
+
+			asyncMain?(stack.last?.container, stack.last?.vc as? T)
 		})
 
-		return stack!.last?.vc as? T
+		return stack.last?.vc as? T
 	}
 	
 	static func NLog(_ msg: String) {
@@ -161,18 +141,20 @@ struct StackObject {
 	var container: UIViewController?
 	var vc: UIViewController?
 	
-	func select() {
+	func select() -> Bool {
 		guard let vc = vc else {
-			return
+			return false
 		}
 		
 		switch container {
 		case let container? where container is UITabBarController:
 			(container as! UITabBarController).selectedViewController = vc
-			
+			return true
+
 		case let container? where container is UISplitViewController:
 			(container as! UISplitViewController).showDetailViewController(vc, sender: nil)
-			
+			return true
+
 		case let container? where container is UINavigationController:
 			let container = container as! UINavigationController
 			container.popToRootViewController(animated: false)
@@ -180,9 +162,10 @@ struct StackObject {
 			if container.topViewController != vc {
 				container.show(vc, sender: nil)
 			}
-			
+			return true
+
 		default:
-			return
+			return false
 		}
 	}
 }
