@@ -6,7 +6,7 @@
 useful to handle external requests such as deep linking, push notifications or shortcuts 
 (open specific VC from AppDelegate) and/or to simply call functions on VCs not directly accessible. 
 
-Navigator recursively scan all instantiated view controllers in your view hierarchy looking for the class.Type you're searching for in childs and/or presentedViewController and save the route in cache for next calls.
+Navigator recursively scan all instantiated view controllers in your view hierarchy looking for the class.Type you're searching for in childs and/or presentedViewController.
 
 It can then navigate to it using all native container view controllers functions (UITabBarController, UISplitViewController and UINavigationController). 
 
@@ -44,14 +44,6 @@ Navigator.select(HelloVC.self) { (HelloVCContainer, HelloVCInstance) in
     print(HelloVCContainer.childViewControllers as AnyObject)
     HelloVCInstance?.sayHelloWithAlert()
 }
-```
-
-Navigator cache the view hierarchy to be faster, you can empty it when needed:
-```swift
-// reset cache completely
-Navigator.purgeCache()
-// reset cache for a specific type only
-Navigator.purgeCacheFor(HelloVC.self)
 ```
 
 Activate debug and whatch the view hierarchy printed on console:
