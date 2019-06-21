@@ -24,9 +24,6 @@ HelloVC.find()?.sayHelloInConsole()
 // go to it
 HelloVC.select()
 
-// Both find() and select() return the VC instance (discardable), so you also can: 
-HelloVC.select()?.sayHelloInConsole()
-
 // execute something in the main thread asynchronously:
 HelloVC.find { (helloVCParent, helloVC) in
     HelloVC.select()?.sayHelloWithAlertFromRootViewController()
