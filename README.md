@@ -26,12 +26,12 @@ HelloVC.select()
 
 // execute something in the main thread asynchronously:
 HelloVC.find { (helloVCParent, helloVC) in
-    HelloVC.select()?.sayHelloWithAlertFromRootViewController()
+    helloVC?.sayHelloWithAlertFromRootViewController()
     print("HelloVC found: ", helloVC?.title as? String)
 }
 
 let hVC = HelloVC.select { (helloVCParent, helloVC) in
-    HelloVC.select()?.sayHelloWithAlert()
+    helloVC?.sayHelloWithAlert()
     print("HelloVC found, printing on main thread async: ", helloVC?.title as? String)
 }
 hVC.doSomething() // sync
