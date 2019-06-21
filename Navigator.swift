@@ -26,21 +26,22 @@ import UIKit
 // MARK: -
 // MARK: UIViewController extension
 
-public extension UIViewController {
-	@discardableResult public static func find() -> Self? {
-		return Navigator.find(self)
-	}
-
-	@discardableResult public static func select() -> Self? {
-		return Navigator.select(self)
-	}
+public protocol Navigable {}
+extension UIViewController: Navigable {} // implement the protocol by default in all UIViewControllers
+public extension Navigable where Self: UIViewController {
+    @discardableResult static func find(asyncMain: Navigator.asyncMainHandler<Self>? = nil) -> Self? {
+        return Navigator.find(self, asyncMain: asyncMain)
+    }
+    
+    @discardableResult static func select(asyncMain: Navigator.asyncMainHandler<Self>? = nil) -> Self? {
+        return Navigator.select(self, asyncMain: asyncMain)
+    }
 }
 
 // MARK: -
 // MARK: Navigator class
 
 public class Navigator {
-	
 	public static var debug = false {
 		didSet {
 			if debug {
@@ -49,17 +50,18 @@ public class Navigator {
 		}
 	}
 
-	public typealias asyncMainHandler<T: UIViewController> = ((_ container: UIViewController?, _ vc: T?) -> ())?
+    /// This block is always called in the main thread.
+    public typealias asyncMainHandler<T: UIViewController> = ((_ container: UIViewController?, _ vc: T?) -> ())
 	
-	@discardableResult public static func find<T: UIViewController>(_ type: T.Type, asyncMain: asyncMainHandler<T> = nil) -> T? {
+	@discardableResult public static func find<T: UIViewController>(_ type: T.Type, asyncMain: asyncMainHandler<T>? = nil) -> T? {
 		return lookFor(type, select: false, asyncMain: asyncMain)
 	}
 
-	@discardableResult public static func select<T: UIViewController>(_ type: T.Type, asyncMain: asyncMainHandler<T> = nil) -> T? {
+	@discardableResult public static func select<T: UIViewController>(_ type: T.Type, asyncMain: asyncMainHandler<T>? = nil) -> T? {
 		return lookFor(type, select: true, asyncMain: asyncMain)
 	}
 	
-	@discardableResult private static func lookFor<T: UIViewController>(_ vcType: T.Type, select: Bool, asyncMain: asyncMainHandler<T>) -> T? {
+	@discardableResult private static func lookFor<T: UIViewController>(_ vcType: T.Type, select: Bool, asyncMain: asyncMainHandler<T>?) -> T? {
 		// recursive search
 		func checkIn(_ viewController: UIViewController?, stack: [StackObject] = [StackObject](), indent: String = "") -> [StackObject] {
 			
@@ -73,13 +75,13 @@ public class Navigator {
 				}
 				return stack
 
-			case let container? where container.childViewControllers.count > 0:
+            case let parent? where parent.children.count > 0:
 				if stack.last != nil {
 					stack[stack.count - 1].vc = viewController
 				}
-				for vc in container.childViewControllers {
+                for vc in parent.children {
 					NLog(indent + "-> \(String(describing: type(of: vc))):")
-					let subStack = checkIn(vc, stack: [StackObject(container: container, vc: nil)], indent: indent + "    ")
+					let subStack = checkIn(vc, stack: [StackObject(parent: parent, vc: nil)], indent: indent + "    ")
 					if subStack.last?.vc is T {
 						stack.append(contentsOf: subStack)
 						return stack
@@ -91,9 +93,9 @@ public class Navigator {
 				// The presentedViewController is != nil also when it has bee presented
 				// by an ancestor of the examined container.
 				// So we also need to check 'pvc.parent == container'.
-				if let container = viewController,
-					let pvc = container.presentedViewController,
-					pvc.parent == container {
+				if let parent = viewController,
+					let pvc = parent.presentedViewController,
+					pvc.parent == parent {
 					if stack.last != nil {
 						stack[stack.count - 1].vc = viewController
 					}
@@ -124,7 +126,7 @@ public class Navigator {
 				}
 			}
 
-			asyncMain?(stack.last?.container, stack.last?.vc as? T)
+			asyncMain?(stack.last?.parent, stack.last?.vc as? T)
 		})
 
 		return stack.last?.vc as? T
@@ -138,7 +140,7 @@ public class Navigator {
 }
 
 struct StackObject {
-	var container: UIViewController?
+	var parent: UIViewController?
 	var vc: UIViewController?
 	
 	func select() -> Bool {
@@ -146,21 +148,21 @@ struct StackObject {
 			return false
 		}
 		
-		switch container {
-		case let container? where container is UITabBarController:
-			(container as! UITabBarController).selectedViewController = vc
+		switch parent {
+		case let parent? where parent is UITabBarController:
+			(parent as! UITabBarController).selectedViewController = vc
 			return true
 
-		case let container? where container is UISplitViewController:
-			(container as! UISplitViewController).showDetailViewController(vc, sender: nil)
+		case let parent? where parent is UISplitViewController:
+			(parent as! UISplitViewController).showDetailViewController(vc, sender: nil)
 			return true
 
-		case let container? where container is UINavigationController:
-			let container = container as! UINavigationController
-			container.popToRootViewController(animated: false)
+		case let parent? where parent is UINavigationController:
+			let parent = parent as! UINavigationController
+			parent.popToRootViewController(animated: false)
 			// avoid pushing the same vc twice:
-			if container.topViewController != vc {
-				container.show(vc, sender: nil)
+			if parent.topViewController != vc {
+				parent.show(vc, sender: nil)
 			}
 			return true
 
@@ -169,7 +171,6 @@ struct StackObject {
 		}
 	}
 }
-
 
 // MARK: -
 // MARK: Globals

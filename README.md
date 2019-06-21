@@ -2,13 +2,13 @@
 
 [![Swift4 compatible][Swift4Badge]][Swift4Link]
 
-**Navigator.swift** allow decoupled navigation in iOS apps by just passing the viewController class type, 
+**Navigator.swift** allow decoupled navigation in iOS apps,
 useful to handle external requests such as deep linking, push notifications or shortcuts 
-(open specific VC from AppDelegate) and/or to simply call functions on VCs not directly accessible. 
+(open a given viewController from AppDelegate) and/or to simply call funcs on VCs not directly accessible. 
 
 Navigator recursively scan all instantiated view controllers in your view hierarchy looking for the class.Type you're searching for in childs and/or presentedViewController.
 
-It can then navigate to it using all native container view controllers functions (UITabBarController, UISplitViewController and UINavigationController). 
+It can then navigate to it using all native container view controllers methods (UITabBarController, UISplitViewController and UINavigationController). 
 
 NOTE:
 If you use custom containers then you can navigate to them and complete navigation steps in closure, same for not loaded UIViewControllers.
@@ -18,32 +18,26 @@ If you use custom containers then you can navigate to them and complete navigati
 Use the UIViewController extension on your view controller itself.
 It returns the vc instance (auto-inferred type) synchronously while navigation always happen async on the main thread:
 ```swift
-// return the running instance and call one of its func in one line:
+// return the running instance and call one of its funcs in one line:
 HelloVC.find()?.sayHelloInConsole()
+
 // go to it
 HelloVC.select()
+
+// Both find() and select() return the VC instance (discardable), so you also can: 
 HelloVC.select()?.sayHelloInConsole()
-```
 
-Using Navigator class (get the instance and also its container instances async) :
-```swift
-// synchronously
-Navigator.find(HelloVC.self)?.sayHelloInConsole()
-
-// asynchronously, on the main thread:
-Navigator.find(HelloVC.self) { (HelloVCContainer, HelloVCInstance) in
-    print(HelloVCContainer.childViewControllers as AnyObject)
-    HelloVCInstance?.sayHelloWithAlert()
+// execute something in the main thread asynchronously:
+HelloVC.find { (helloVCParent, helloVC) in
+    HelloVC.select()?.sayHelloWithAlertFromRootViewController()
+    print("HelloVC found: ", helloVC?.title as? String)
 }
 
-// navigate to the HelloVC instance and execute sayHelloInConsole() synchronously
-Navigator.select(HelloVC.self)?.sayHelloInConsole()
-
-// execute sayHelloWithAlert() asynchronously on the main thread
-Navigator.select(HelloVC.self) { (HelloVCContainer, HelloVCInstance) in
-    print(HelloVCContainer.childViewControllers as AnyObject)
-    HelloVCInstance?.sayHelloWithAlert()
+let hVC = HelloVC.select { (helloVCParent, helloVC) in
+    HelloVC.select()?.sayHelloWithAlert()
+    print("HelloVC found, printing on main thread async: ", helloVC?.title as? String)
 }
+hVC.doSomething() // sync
 ```
 
 Activate debug and whatch the view hierarchy printed on console:
